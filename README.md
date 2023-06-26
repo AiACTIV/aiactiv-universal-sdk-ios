@@ -419,7 +419,7 @@ extension ShowAdViewController: NativeAdViewDelegate {
 
 ## Author
 
-Aicactus, Si Huynh, tan-si.huynh@aicactus.io
+AiACTIV TECH, tech@aiactiv.io
 
 ## License
 
