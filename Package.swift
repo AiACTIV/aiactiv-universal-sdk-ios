@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "AiactivUniversalSDK",
     platforms: [
-        .iOS(.v11),
+        .iOS(.v12),
         .tvOS(.v12)
     ],
     products: [
@@ -18,6 +18,6 @@ let package = Package(
     targets: [
         .binaryTarget(
             name: "AiactivUniversalSDK",
-            path: "./Resources/0.1.16/AiactivUniversalSDK.xcframework.zip")
+            path: "./Resources/1.0.0/AiactivUniversalSDK.xcframework.zip")
     ]
 )
