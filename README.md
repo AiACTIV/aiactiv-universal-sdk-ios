@@ -7,7 +7,7 @@ Ads and Analytics Framework
 
 ## Prerequisites
 
-- Target iOS 11.0 or higher
+- Target iOS 12.0 or higher
 - Target tvOS 12.0 or higher
 - Swift version 5.0 or higher
 
@@ -196,8 +196,15 @@ Once the views are in place and you've assigned the correct ad view class to the
 
 Or you can bind your views to NativeAdView programmatically. Example:
 
+
 ```javascript
-let nativeAdView = NativeAdView()
+ var adView: NativeAdView!
+ var nativeAd: NativeAd!
+
+```
+
+```javascript
+nativeAdView = NativeAdView()
 nativeAdView.translatesAutoresizingMaskIntoConstraints = false
 nativeAdView.backgroundColor = .systemGray
 
@@ -228,50 +235,71 @@ descriptionLabel.numberOfLines = 2
 descriptionLabel.lineBreakMode = .byTruncatingTail
 descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
 self.nativeAdView.desc = descriptionLabel
+
+let mediaView = AdMediaView()
+mediaView.translatesAutoresizingMaskIntoConstraints = false
+self.nativeAdView.mediaView = mediaView
 ```
 
-Once the layout is complete and the outlets are linked, the last step is to add code to your app that performs load an ad via `contentView`.
+Using NativeAdLoader call ad
+
+##### NativeAdLoader
 
 ```javascript
-@IBOutlet weak var adView: NativeAdView!
-
-...
-
-adView.loadAd(adUnitID: <<<Find your inventory ID in container>>>, adRequest: AdRequest())
+let loader = NativeAdLoader(adUnitID: adProperty.unitID)
+loader.delegate = self
+loader.loadNativeAd(AdRequest())
 ```
 
-When NativeAdView loaded, the `mediaContent` will be returned in `NativeAdViewDelegate` contains media metadata (width, height...) to help you better in update layout dimension.
-
 ```javascript
-nativeAdView.delegate = self
+extension ShowAdViewController: NativeAdLoaderDelegate {
+    func nativeAdLoader(_ unitID: Int64, didSuccessLoad nativeAd: NativeAd) {
+        
+        nativeAdView.title.text = nativeAd.title
+        nativeAdView.desc.text = nativeAd.description
+        nativeAdView.ctaDescription.text = nativeAd.ctaDescription
 
-...
+         //show video
+        nativeAdView.mediaView.video = nativeAd.videoVastTag ?? ""
 
-extension YourViewController: NativeAdViewDelegate {
-    func onNativeAdViewEvent(_ view: NativeAdView, adEvent event: NativeAdView.NativeAdEvent) {
-        var iconHeight: CGFloat = 0
-        if (event.data.name == "AD_LOADED"), let mediaContent = event.mediaContent {
-            if let icon = mediaContent.icon {
-                iconHeight = icon.height
-                NSLayoutConstraint.activate([
-                    view.iconImage.widthAnchor.constraint(equalToConstant: icon.width),
-                    view.iconImage.heightAnchor.constraint(equalToConstant: icon.height)
-                ])
-            }
+        // duration
+         let dur = nativeAdView.mediaView.duration
 
-            if let main = mediaContent.main {
-                let fixedWidth = view.bounds.width
-                let fixedHeight = (fixedWidth * main.height) / main.width
-                NSLayoutConstraint.activate([
-                    view.mainImage.heightAnchor.constraint(equalToConstant: fixedHeight),
-                    view.heightAnchor.constraint(equalToConstant: fixedHeight + iconHeight + 16)
-                ])
+        // current time
+         let currTime = nativeAdView.mediaView.currentTime
+
+         // enable PlayBackView
+         nativeAdView.mediaView.showPlayBack = true
+
+         // only show remaining time 
+         nativeAdView.mediaView.showOnlyRemainingTime = true
+
+         //show image
+         nativeAd.getMainImage { result in
+            switch result {
+            case .success(let image):
+               self.nativeAdView.mainImage.image = image
+            case .failure(_): 
+                // show error
             }
         }
+
+        // show icon
+        nativeAd.getIconImage { result in
+            switch result {
+            case .success(let image):
+                self.nativeAdView.iconImage.image = image
+            case .failure(_): break
+                  // show error
+            }
+        }
+
+        // Note: this should always be done after populating the ad views. 
+        self.nativeAdView.nativeAd = nativeAd
+        self.nativeAdView.delegate = self
     }
 }
 ```
-
 ##### Display NativeAdTemplateView
 
 The Framework provides three types of template: Default, Medium & Article
@@ -354,7 +382,7 @@ extension ShowAdViewController: VideoAdLoaderDelegate {
 }
 ```
 
-##### For Native Ad - NativeAdLoaderDelegate
+##### For Native Ad - NativeAdViewDelegate
 
 ```javascript
 extension ShowAdViewController: NativeAdViewDelegate {
