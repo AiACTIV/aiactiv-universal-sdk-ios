@@ -18,6 +18,6 @@ let package = Package(
     targets: [
         .binaryTarget(
             name: "AiactivUniversalSDK",
-            path: "./Resources/1.1.0/AiactivUniversalSDK.xcframework.zip")
+            path: "./Resources/1.1.2/AiactivUniversalSDK.xcframework.zip")
     ]
 )
